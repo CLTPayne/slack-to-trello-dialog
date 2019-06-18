@@ -1,6 +1,7 @@
 const axios = require('axios');
 const debug = require('debug');
 const qs = require('querystring');
+const users = require('./users');
 
 // Create a new instance of axios with custom config:
 const trelloApi = axios.create({
@@ -65,7 +66,7 @@ const createCard = async (userId, submission) => {
 
     const fetchUserName = async () => {
         try {
-            const userInfo = await users() // logic to access the users userId 
+            const userInfo = await users.find(userId) // logic to access the users userId 
             debug(`Find user: ${userId}`)
             console.log(userName.data.user)
             return userInfo.data.user.profile.real_name_normalized
