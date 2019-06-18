@@ -94,3 +94,7 @@ app.post('/interactive-component', (req, res) => {
         res.sendStatus(500)
     }
 });
+
+app.listen(proscess.env.PORT, () => {
+    console.log(`App is listening on port ${process.env.PORT}`)
+});
