@@ -76,4 +76,21 @@ app.post('/commands', async (req, res) => {
         debug('Verification token mismatch');
         res.sendStatus(500);
     }
-})
+});
+
+app.post('/interactive-component', (req, res) => {
+    const body = JSON.parse(req.body.payload);
+
+    if (body.token === process.env.SLACK_VERIFICATION_TOKEN) {
+        debug(`New bug submission received: ${body.submission.trigger_id}`);
+
+        // Immediately respond with an empty 200 response to let Slcak know the command was received
+        res.send('');
+
+        // create Trello card
+        // add some logic to handle that 
+    } else {
+        debug('Failure. Tokens do not match!');
+        res.sendStatus(500)
+    }
+});
