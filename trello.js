@@ -52,8 +52,60 @@ const sendConfirmation = card => {
         debug('sendConfirmation: %o', result.data);
     } catch (error) {
         debug('sendConfirmation error: %o', error);
-        console.error(error)
+        console.error(error);
     }
-    
-    
+};
+
+// Create a trello card
+const createCard = async (userId, submission) => {
+    const card = {};
+
+    // logic for adding card labels here if using
+    // not using card labels right now
+
+    const fetchUserName = async () => {
+        try {
+            const userInfo = await users() // logic to access the users userId 
+            debug(`Find user: ${userId}`)
+            console.log(userName.data.user)
+            return userInfo.data.user.profile.real_name_normalized
+        } catch (error) {
+            console.log(error)
+            // How do you reveal the error to the end user?
+            // throw error
+        }
+    }
+
+    try {
+        const userName = await fetchUserName()
+        card.userId = userId;
+        card.userRealName = userName;
+        card.title = submission.title;
+        card.summary = submission.summary;
+        const result = await trelloApi.post('/cards', qs.stringify({
+            idList: trelloList, // id of the backlog list in the test board
+            name: submission.title,
+            desc: `${submission.summary}\n\n---\n Submitted by ${card.userRealName}`,
+        }))
+        card.shortUrl = result.data.shortUrl;
+        sendConfirmation(card)
+        return card
+    } catch (error) {
+        if (error.response) {
+            // The request was made but server responded with a non 2xx
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.log(error.request);
+        } else {
+            // Something else triggered an error
+            console.log('Error', error.message);
+        }
+        console.log(error.config)
+        // How do you reveal the error to the end user?
+    }    
 }
+
+module.exports = { createCard, sendConfirmation };
