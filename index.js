@@ -95,6 +95,6 @@ app.post('/interactive-component', (req, res) => {
     }
 });
 
-app.listen(proscess.env.PORT, () => {
-    console.log(`App is listening on port ${process.env.PORT}`)
+app.listen(3000, () => {
+    console.log(`App is listening on port http://localhost:3000`)
 });
