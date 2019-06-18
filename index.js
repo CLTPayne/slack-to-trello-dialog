@@ -6,6 +6,7 @@ const axios = require('axios');
 const debug = require('debug')('slash-command-template:index');
 const express = require('express');
 const app = express();
+const trello = require('./trello')
 
 // Parse urlencoded bodies with the qs library
 // parse application/x-www-form-urlencoded
