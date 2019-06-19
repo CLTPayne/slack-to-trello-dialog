@@ -8,6 +8,8 @@ const express = require('express');
 const app = express();
 const trello = require('./trello')
 
+const PORT = process.env.PORT || 3000;
+
 // Parse urlencoded bodies with the qs library
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -89,13 +91,13 @@ app.post('/interactive-component', (req, res) => {
         res.send('');
 
         // create Trello card
-        // add some logic to handle that 
+        trello.createCard(body.user.id, body.submission);
     } else {
         debug('Failure. Tokens do not match!');
         res.sendStatus(500)
     }
 });
 
-app.listen(3000, () => {
-    console.log(`App is listening on port http://localhost:3000`)
+app.listen(PORT, () => {
+    console.log(`App is listening on port ${PORT}`)
 });
