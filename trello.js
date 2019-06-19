@@ -17,6 +17,7 @@ const queryDetails = {
 const boardId = process.env.TRELLO_BOARD_ID;
 
 // Get all lists / columns on the board
+// Can't have top level wait so have to use a promise chain
 axios.get(`https://api.trello.com/1/boards/${boardId}/lists`, queryDetails).then(response => {
     console.log("Trello boards lists:", response.data)
 }).catch((error) => {
