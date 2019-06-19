@@ -31,9 +31,12 @@ app.post('/command', async (req, res) => {
     // trigger_id is used to respond to the command by opening a dialog
     const { token, text, trigger_id } = req.body;
     if (token === process.env.SLACK_VERIFICATION_TOKEN) {
+        // TODO fix this dialog to be better
         // Use the blockkit builder to create better json for this form??
         // Is the callback_id the button name? 
         // Add some an upload element for an image or video of the bug
+        // Add expected behaviour field
+        // Add actual behaviour field 
         const dialog = {
             token: process.env.SLACK_ACCESS_TOKEN,
             trigger_id,
@@ -72,11 +75,11 @@ app.post('/command', async (req, res) => {
         };
 
         try {
+            res.send('');
             const result = await axios.post('https://slack.com/api/dialog.open', qs.stringify(dialog));
             // See what the error is with this. Debug seems nonsense!
             console.log(result.data.response_metadata.messages)
             debug('dialog.open: %o', result.data);
-            res.send('');
         } catch (error) {
             debug('dialog.open failed: %o', error);
             res.sendStatus(500);
