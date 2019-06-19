@@ -6,7 +6,7 @@ const find = async slackUserId => {
         token: process.env.SLACK_ACCESS_TOKEN,
         user: slackUserId
     };
-    await axios.post('https://slack.com/api/users.info', qs.stringify(body))
+    return axios.post('https://slack.com/api/users.info', qs.stringify(body))
 }
  
 module.exports = { find }
