@@ -3,20 +3,24 @@ const debug = require('debug');
 const qs = require('querystring');
 const users = require('./users');
 
-// Create a new instance of axios with custom config:
-const trelloApi = axios.create({
-    baseURL: 'https://api.trello.com/1',
-    timeout: 1000,
+const queryDetails = {
     params: {
+        cards: 'none',
+        card_fields: 'all',
+        filter: 'open',
+        fields: 'all',
         key: process.env.TRELLO_KEY,
         token: process.env.TRELLO_ACCESS_TOKEN
     }
-});
+}
 
 const boardId = process.env.TRELLO_BOARD_ID;
 
-trelloApi.get(`/boards/${boardId}/lists`).then(response => {
-    console.log("Trello board lists:", response.data)
+// Get all lists / columns on the board
+axios.get(`https://api.trello.com/1/boards/${boardId}/lists`, queryDetails).then(response => {
+    console.log("Trello boards lists:", response.data)
+}).catch((error) => {
+    console.log(error.message)
 })
 
 // The column of your board to add your dialog data to:
