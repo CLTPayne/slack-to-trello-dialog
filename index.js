@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 3000;
 
 // Parse urlencoded bodies with the qs library
 // parse application/x-www-form-urlencoded
+// Slack sends data from a slash command as 'application/x-www-form-urlencoded'
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // parse application/json
@@ -23,9 +24,12 @@ app.get('/', (req, res) => {
 
 // End point to handle user hitting the slash command
 // Responding with a slack dialog / form
-app.post('/bugs', async (req, res) => {
+app.post('/command', async (req, res) => {
+    // token = veifiaction but this is depriacted for signing secret
+    // TODO - upgrade this https://api.slack.com/docs/verifying-requests-from-slack#signing_secrets_admin_page
+    // text is used as the default title in the dialog
+    // trigger_id is used to respond to the command by opening a dialog
     const { token, text, trigger_id } = req.body;
-
     if (token === process.env.SLACK_VERIFICATION_TOKEN) {
         // Use the blockkit builder to create better json for this form??
         // Is the callback_id the button name? 
@@ -34,7 +38,7 @@ app.post('/bugs', async (req, res) => {
             token: process.env.SLACK_ACCESS_TOKEN,
             trigger_id,
             dialog: JSON.stringify({
-                title: 'Submit a new 🐞to the scout roadmap',
+                title: 'Submit a new scout 🐞🐛',
                 callback_id: 'submit_bug',
                 submit_label: 'Submit',
                 elements: [
@@ -69,6 +73,8 @@ app.post('/bugs', async (req, res) => {
 
         try {
             const result = await axios.post('https://slack.com/api/dialog.open', qs.stringify(dialog));
+            // See what the error is with this. Debug seems nonsense!
+            console.log(result.data.response_metadata.messages)
             debug('dialog.open: %o', result.data);
             res.send('');
         } catch (error) {
@@ -77,6 +83,8 @@ app.post('/bugs', async (req, res) => {
         }
     } else {
         debug('Verification token mismatch');
+        // not good practise to just send a 500 
+        // TODO - send a text response to say sorry didn't work https://api.slack.com/slash-commands
         res.sendStatus(500);
     }
 });
@@ -98,6 +106,8 @@ app.post('/interactive-component', (req, res) => {
     }
 });
 
+
+// Use localtunnel to expose local development web service
 app.listen(PORT, () => {
     console.log(`App is listening on port ${PORT}`)
 });
