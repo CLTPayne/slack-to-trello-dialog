@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 
 // End point to handle user hitting the slash command
 // Responding with a slack dialog / form
-app.post('/commands', async (req, res) => {
+app.post('/bugs', async (req, res) => {
     const { token, text, trigger_id } = req.body;
 
     if (token === process.env.SLACK_VERIFICATION_TOKEN) {
