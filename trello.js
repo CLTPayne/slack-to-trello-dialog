@@ -1,34 +1,6 @@
-const axios = require('axios');
-const qs = require('querystring');
-const users = require('./users');
-
-const queryDetails = {
-    params: {
-        cards: 'none',
-        card_fields: 'all',
-        filter: 'open',
-        fields: 'all',
-        key: process.env.TRELLO_KEY,
-        token: process.env.TRELLO_ACCESS_TOKEN
-    }
-}
-
-const boardId = process.env.TRELLO_BOARD_ID;
-
-// Get all lists / columns on the board
-// Can't have top level wait so have to use a promise chain
-axios.get(`https://api.trello.com/1/boards/${boardId}/lists`, queryDetails).then(response => {
-    console.log("Trello boards lists:", response.data)
-}).catch((error) => {
-    console.log(error.message)
-})
-
-// The column of your board to add your dialog data to:
-const trelloList = process.env.TRELLO_LIST_ID;
-
-// Could add a label to the trello card based on a select / input in the dialog
-// Have not done that for the current starter dialog. This might be of interest when developing 
-// dialog with blockit
+import axios from 'axios';
+import qs from 'querystring';
+import { findUser } from './findUser';
 
 const sendConfirmation = async card => {
     // TODO - use block kit for this confirmation message
@@ -60,23 +32,24 @@ const sendConfirmation = async card => {
                 }
             ])
         }))
-        console.log({result})
-        console.log('sendConfirmation: ', result.data);
+        console.log('sendConfirmation: ', result.data.message.text);
     } catch (error) {
         console.log('sendConfirmation error: ', error);
     }
 };
 
 // Create a trello card
-const createCard = async (userId, submission) => {
-    const card = {};
-
-    // logic for adding card labels here if using
-    // not using card labels right now
+export const createCard = async (userId, submission) => {
+    const { title, summary } = submission;
+    const card = {
+        userId,
+        title,
+        summary
+    };
 
     const fetchUserName = async () => {
         try {
-            const userInfo = await users.find(userId) // logic to access the users userId 
+            const userInfo = await findUser(userId) // logic to access the users userId 
             console.log(`Find user: ${userId}`)
             console.log('Found user:', userInfo.data.user.profile.real_name_normalized)
             return userInfo.data.user.profile.real_name_normalized
@@ -85,16 +58,12 @@ const createCard = async (userId, submission) => {
             // How do you reveal the error to the end user?
             // throw error
         }
-    }
+    };
 
     try {
-        const userName = await fetchUserName()
-        card.userId = userId;
-        card.userRealName = userName;
-        card.title = submission.title;
-        card.summary = submission.summary;
+        card.userRealName = await fetchUserName()
         const result = await axios.post('https://api.trello.com/1/cards', {
-            idList: trelloList, // id of the backlog list in the test board
+            idList: process.env.TRELLO_LIST_ID, // id of the backlog list in the test board
             name: submission.title,
             desc: `${submission.summary}\n\n---\n Submitted by ${card.userRealName}`,
             key: process.env.TRELLO_KEY,
@@ -121,6 +90,4 @@ const createCard = async (userId, submission) => {
         console.log(error.config)
         // How do you reveal the error to the end user?
     }    
-}
-
-module.exports = { createCard, sendConfirmation };
+};

@@ -5,7 +5,8 @@ const qs = require('qs');
 const axios = require('axios');
 const express = require('express');
 const app = express();
-const trello = require('./trello')
+// const trello = require('./trello')
+import { createCard } from './trello';
 
 const PORT = process.env.PORT || 3000;
 
@@ -100,7 +101,7 @@ app.post('/interactive-component', (req, res) => {
         res.send('');
 
         // create Trello card
-        trello.createCard(body.user.id, body.submission);
+        createCard(body.user.id, body.submission);
     } else {
         console.log('Failure. Tokens do not match!');
         res.sendStatus(500)
