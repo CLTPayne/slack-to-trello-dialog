@@ -1,5 +1,4 @@
 const axios = require('axios');
-const debug = require('debug');
 const qs = require('querystring');
 const users = require('./users');
 
@@ -31,12 +30,12 @@ const trelloList = process.env.TRELLO_LIST_ID;
 // Have not done that for the current starter dialog. This might be of interest when developing 
 // dialog with blockit
 
-const sendConfirmation = card => {
+const sendConfirmation = async card => {
     // TODO - use block kit for this confirmation message
     // Make it appear in thread. 
     // Messages come from slack bot / how best to have a confirmation???
     try {
-        const result = axios.post('https://slack.com/api/chat.postMessage', qs.stringify({
+        const result = await axios.post('https://slack.com/api/chat.postMessage', qs.stringify({
             token: process.env.SLACK_ACCESS_TOKEN,
             channel: card.userId,
             text: 'Bug ticket created in Trello',
@@ -61,10 +60,10 @@ const sendConfirmation = card => {
                 }
             ])
         }))
-        debug('sendConfirmation: %o', result.data);
+        console.log({result})
+        console.log('sendConfirmation: ', result.data);
     } catch (error) {
-        debug('sendConfirmation error: %o', error);
-        console.error(error);
+        console.log('sendConfirmation error: ', error);
     }
 };
 
@@ -78,8 +77,8 @@ const createCard = async (userId, submission) => {
     const fetchUserName = async () => {
         try {
             const userInfo = await users.find(userId) // logic to access the users userId 
-            debug(`Find user: ${userId}`)
-            console.log('👩🏻', userInfo.data.user.profile.real_name_normalized)
+            console.log(`Find user: ${userId}`)
+            console.log('Found user:', userInfo.data.user.profile.real_name_normalized)
             return userInfo.data.user.profile.real_name_normalized
         } catch (error) {
             console.log(error)

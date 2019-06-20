@@ -3,7 +3,6 @@ require('dotenv').config();
 const bodyParser = require('body-parser');
 const qs = require('qs');
 const axios = require('axios');
-const debug = require('debug')('slash-command-template:index');
 const express = require('express');
 const app = express();
 const trello = require('./trello')
@@ -78,14 +77,13 @@ app.post('/command', async (req, res) => {
             res.send('');
             const result = await axios.post('https://slack.com/api/dialog.open', qs.stringify(dialog));
             // See what the error is with this. Debug seems nonsense!
-            console.log(result.data.response_metadata.messages)
-            debug('dialog.open: %o', result.data);
+            console.log('dailog.open:', result.data)
         } catch (error) {
-            debug('dialog.open failed: %o', error);
+            console.log('dialog.open failed:', error);
             res.sendStatus(500);
         }
     } else {
-        debug('Verification token mismatch');
+        console.log('Verification token mismatch');
         // not good practise to just send a 500 
         // TODO - send a text response to say sorry didn't work https://api.slack.com/slash-commands
         res.sendStatus(500);
@@ -96,7 +94,7 @@ app.post('/interactive-component', (req, res) => {
     const body = JSON.parse(req.body.payload);
 
     if (body.token === process.env.SLACK_VERIFICATION_TOKEN) {
-        debug(`New bug submission received: ${body.submission.trigger_id}`);
+        console.log(`New bug submission received: ${body.submission.title}`);
 
         // Immediately respond with an empty 200 response to let Slcak know the command was received
         res.send('');
@@ -104,7 +102,7 @@ app.post('/interactive-component', (req, res) => {
         // create Trello card
         trello.createCard(body.user.id, body.submission);
     } else {
-        debug('Failure. Tokens do not match!');
+        console.log('Failure. Tokens do not match!');
         res.sendStatus(500)
     }
 });
