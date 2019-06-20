@@ -1,13 +1,13 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-const bodyParser = require('body-parser');
-const qs = require('qs');
-const axios = require('axios');
-const express = require('express');
-const app = express();
-// const trello = require('./trello')
+import bodyParser from 'body-parser';
+import qs from 'qs';
+import axios from 'axios';
+import express from 'express';
 import { createCard } from './trello';
 
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Parse urlencoded bodies with the qs library
@@ -93,14 +93,10 @@ app.post('/command', async (req, res) => {
 
 app.post('/interactive-component', (req, res) => {
     const body = JSON.parse(req.body.payload);
-
     if (body.token === process.env.SLACK_VERIFICATION_TOKEN) {
         console.log(`New bug submission received: ${body.submission.title}`);
-
         // Immediately respond with an empty 200 response to let Slcak know the command was received
         res.send('');
-
-        // create Trello card
         createCard(body.user.id, body.submission);
     } else {
         console.log('Failure. Tokens do not match!');
